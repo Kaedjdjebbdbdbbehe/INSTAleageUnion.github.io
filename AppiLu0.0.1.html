@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#1a120b">
+    <title>منصة الأندية</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --dark-brown: #1a120b;
+            --golden-brown: #d4a373;
+            --light-gold: #fefae0;
+            --brown: #3a2c1a;
+            --darker-brown: #2a1e12;
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            --fast-transition: all 0.15s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: var(--dark-brown);
+            color: var(--light-gold);
+            line-height: 1.6;
+            overscroll-behavior-y: contain;
+        }
+        
+        .app-container {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+        
+        .header {
+            background: var(--dark-brown);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(212, 163, 115, 0.2);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(5px);
+            transition: var(--fast-transition);
+        }
+        
+        .logo {
+            color: var(--golden-brown);
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+        
+        .menu-toggle {
+            color: var(--golden-brown);
+            font-size: 1.3em;
+            cursor: pointer;
+            background: none;
+            border: none;
+            transition: var(--fast-transition);
+        }
+        
+        .menu-toggle:hover {
+            transform: scale(1.1);
+        }
+        
+        .main-menu {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 85%;
+            max-width: 300px;
+            height: 100vh;
+            background-color: var(--darker-brown);
+            z-index: 1000;
+            transition: var(--transition);
+            box-shadow: -5px 0 15px rgba(0,0,0,0.2);
+            overflow-y: auto;
+            will-change: transform;
+        }
+        
+        .main-menu.active {
+            right: 0;
+        }
+        
+        .menu-header {
+            display: flex;
+            justify-content: space-between;
+            padding: 20px 15px;
+            border-bottom: 1px solid rgba(212, 163, 115, 0.1);
+            align-items: center;
+        }
+        
+        .menu-title {
+            font-weight: bold;
+            color: var(--golden-brown);
+        }
+        
+        .close-menu {
+            background: none;
+            border: none;
+            color: var(--golden-brown);
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: var(--fast-transition);
+        }
+        
+        .close-menu:hover {
+            transform: rotate(90deg);
+        }
+        
+        .menu-item {
+            padding: 18px 20px;
+            cursor: pointer;
+            border-bottom: 1px solid rgba(212, 163, 115, 0.05);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: var(--fast-transition);
+        }
+        
+        .menu-item:hover {
+            background-color: rgba(212, 163, 115, 0.1);
+            transform: translateX(-5px);
+        }
+        
+        .menu-item i {
+            width: 24px;
+            text-align: center;
+        }
+        
+        .content-area {
+            flex: 1;
+            padding: 20px;
+            transition: var(--transition);
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .content-area.hidden {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        
+        .search-container {
+            margin: 20px 0;
+            transition: var(--transition);
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 12px 15px;
+            border-radius: 30px;
+            border: none;
+            background-color: rgba(58, 44, 26, 0.7);
+            color: var(--light-gold);
+            font-size: 1em;
+            transition: var(--transition);
+        }
+        
+        .search-input:focus {
+            outline: none;
+            background-color: rgba(58, 44, 26, 0.9);
+            box-shadow: 0 0 0 2px rgba(212, 163, 115, 0.3);
+        }
+        
+        .clubs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .club-card {
+            background-color: rgba(58, 44, 26, 0.7);
+            padding: 15px;
+            border-radius: 12px;
+            cursor: pointer;
+            border-left: 3px solid var(--golden-brown);
+            transition: var(--transition);
+            will-change: transform;
+        }
+        
+        .club-card:hover {
+            transform: translateY(-3px);
+            background-color: rgba(58, 44, 26, 0.9);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .club-logo {
+            width: 40px;
+            height: 40px;
+            background-color: var(--golden-brown);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 10px;
+            color: var(--dark-brown);
+            font-weight: bold;
+        }
+        
+        .club-details {
+            background-color: rgba(58, 44, 26, 0.9);
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 20px;
+            border-left: 4px solid var(--golden-brown);
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .tab-container {
+            display: flex;
+            border-bottom: 1px solid rgba(212, 163, 115, 0.2);
+            margin: 20px 0;
+            gap: 5px;
+        }
+        
+        .tab {
+            padding: 12px 15px;
+            cursor: pointer;
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--fast-transition);
+        }
+        
+        .tab:hover {
+            color: var(--golden-brown);
+        }
+        
+        .tab.active {
+            font-weight: bold;
+            color: var(--golden-brown);
+        }
+        
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            right: 0;
+            width: 100%;
+            height: 3px;
+            background-color: var(--golden-brown);
+        }
+        
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .officials-list {
+            white-space: pre-wrap;
+            background-color: rgba(26, 18, 11, 0.5);
+            padding: 15px;
+            border-radius: 8px;
+            line-height: 1.8;
+        }
+        
+        .back-btn {
+            background-color: var(--golden-brown);
+            color: var(--dark-brown);
+            border: none;
+            padding: 10px 15px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            border-radius: 30px;
+            font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+        }
+        
+        .back-btn:hover {
+            transform: translateX(-5px);
+            box-shadow: 0 3px 10px rgba(212, 163, 115, 0.3);
+        }
+        
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .loading-overlay.show {
+            display: flex;
+            opacity: 1;
+        }
+        
+        .loading-spinner {
+            border: 4px solid rgba(212, 163, 115, 0.2);
+            border-radius: 50%;
+            border-top: 4px solid var(--golden-brown);
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 999;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .overlay.active {
+            display: block;
+            opacity: 1;
+        }
+        
+        .page-title {
+            margin: 10px 0 20px;
+            transition: var(--transition);
+        }
+        
+        .league-badge {
+            background-color: rgba(212, 163, 115, 0.1);
+            color: var(--golden-brown);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            margin-bottom: 15px;
+            transition: var(--transition);
+        }
+        
+        /* جدول الترتيب */
+        .league-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background-color: rgba(58, 44, 26, 0.7);
+            border-radius: 10px;
+            overflow: hidden;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .league-table th, .league-table td {
+            padding: 12px 15px;
+            text-align: center;
+            border-bottom: 1px solid rgba(212, 163, 115, 0.1);
+        }
+        
+        .league-table th {
+            background-color: rgba(212, 163, 115, 0.2);
+            color: var(--golden-brown);
+            font-weight: bold;
+        }
+        
+        .league-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .league-table tr:hover {
+            background-color: rgba(212, 163, 115, 0.1);
+        }
+        
+        .position {
+            font-weight: bold;
+            width: 30px;
+        }
+        
+        .team-name {
+            text-align: right;
+            padding-right: 20px;
+        }
+        
+        .stats {
+            min-width: 30px;
+        }
+        
+        .highlight {
+            background-color: rgba(212, 163, 115, 0.15);
+        }
+        
+        /* تأثيرات الصفحات */
+        .page-enter {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        
+        .page-enter-active {
+            opacity: 1;
+            transform: translateY(0);
+            transition: var(--transition);
+        }
+        
+        .page-exit {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .page-exit-active {
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: var(--transition);
+        }
+        
+        /* تحسينات للجوال */
+        @media (max-width: 768px) {
+            .clubs-grid {
+                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            }
+            
+            .league-table th, .league-table td {
+                padding: 8px 10px;
+                font-size: 0.9em;
+            }
+            
+            .league-badge {
+                font-size: 0.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="header">
+            <button class="menu-toggle" onclick="toggleMenu()">☰</button>
+            <div class="logo">منصة الأندية</div>
+        </div>
+        
+        <div class="overlay" id="overlay" onclick="closeMenu()"></div>
+        
+        <div class="main-menu" id="mainMenu">
+            <div class="menu-header">
+                <div class="menu-title">القائمة الرئيسية</div>
+                <button class="close-menu" onclick="closeMenu()">✕</button>
+            </div>
+            <div class="menu-item" onclick="navigateTo('home')">
+                <i class="fas fa-home"></i>
+                <span>الرئيسية</span>
+            </div>
+            <div class="menu-item" onclick="navigateTo('بلات ليق')">
+                <i class="fas fa-trophy"></i>
+                <span>بلات ليق</span>
+            </div>
+            <div class="menu-item" onclick="navigateTo('قولد ليغ')">
+                <i class="fas fa-medal"></i>
+                <span>قولد ليغ</span>
+            </div>
+            <div class="menu-item" onclick="navigateTo('برايم ليغ')">
+                <i class="fas fa-award"></i>
+                <span>برايم ليغ</span>
+            </div>
+            <div class="menu-item" onclick="navigateTo('بلاير ليغ')">
+                <i class="fas fa-star"></i>
+                <span>بلاير ليغ</span>
+            </div>
+        </div>
+        
+        <div class="loading-overlay" id="loadingOverlay">
+            <div class="loading-spinner"></div>
+        </div>
+        
+        <div class="content-area" id="contentArea">
+            <h1 class="page-title">مرحباً بكم في منصة الأندية</h1>
+            <p>اختر دوريًا من القائمة لعرض أنديته.</p>
+        </div>
+    </div>
+
+    <script>
+        // بيانات الأندية مع إضافة إحصائيات الترتيب
+        const leaguesData = {
+            "بلات ليق": Array.from({length: 14}, (_, i) => ({
+                name: `نادي ${i+1}`,
+                founded: 1950 + Math.floor(Math.random() * 50),
+                info: `معلومات عامة عن نادي ${i+1} في دوري بلات ليق.\n\nسنة التأسيس: ${1950 + Math.floor(Math.random() * 50)}\n\nهنا يمكن كتابة تفاصيل إضافية عن النادي وتاريخه وإنجازاته.`,
+                officials: `الرئيس: رئيس ${i+1}\nنائب الرئيس: نائب ${i+1}\nالمدير الفني: مدرب ${i+1}\nأمين الصندوق: أمين ${i+1}`,
+                achievements: `- بطل الدوري ${Math.floor(Math.random() * 5)} مرات\n- كأس الملك ${Math.floor(Math.random() * 3)} مرات\n- كأس السوبر ${Math.floor(Math.random() * 2)} مرة`,
+                stats: {
+                    position: i+1,
+                    played: 26,
+                    won: 15 + Math.floor(Math.random() * 5),
+                    drawn: 5 + Math.floor(Math.random() * 3),
+                    lost: 6 - Math.floor(Math.random() * 3),
+                    goalsFor: 30 + Math.floor(Math.random() * 20),
+                    goalsAgainst: 15 + Math.floor(Math.random() * 15),
+                    points: 50 + Math.floor(Math.random() * 15)
+                }
+            })),
+            "قولد ليغ": Array.from({length: 14}, (_, i) => ({
+                name: `نادي ${i+1}`,
+                founded: 1960 + Math.floor(Math.random() * 40),
+                info: `معلومات عامة عن نادي ${i+1} في دوري قولد ليغ.\n\nسنة التأسيس: ${1960 + Math.floor(Math.random() * 40)}\n\nهنا يمكن كتابة تفاصيل إضافية عن النادي وتاريخه وإنجازاته.`,
+                officials: `الرئيس: رئيس ${i+1}\nنائب الرئيس: نائب ${i+1}\nالمدير الفني: مدرب ${i+1}\nأمين الصندوق: أمين ${i+1}`,
+                achievements: `- بطل الدوري ${Math.floor(Math.random() * 3)} مرات\n- كأس الملك ${Math.floor(Math.random() * 2)} مرات`,
+                stats: {
+                    position: i+1,
+                    played: 26,
+                    won: 12 + Math.floor(Math.random() * 5),
+                    drawn: 6 + Math.floor(Math.random() * 3),
+                    lost: 8 - Math.floor(Math.random() * 3),
+                    goalsFor: 25 + Math.floor(Math.random() * 15),
+                    goalsAgainst: 20 + Math.floor(Math.random() * 15),
+                    points: 42 + Math.floor(Math.random() * 15)
+                }
+            })),
+            "برايم ليغ": Array.from({length: 14}, (_, i) => ({
+                name: `نادي ${i+1}`,
+                founded: 1970 + Math.floor(Math.random() * 30),
+                info: `معلومات عامة عن نادي ${i+1} في دوري برايم ليغ.\n\nسنة التأسيس: ${1970 + Math.floor(Math.random() * 30)}\n\nهنا يمكن كتابة تفاصيل إضافية عن النادي وتاريخه وإنجازاته.`,
+                officials: `الرئيس: رئيس ${i+1}\nنائب الرئيس: نائب ${i+1}\nالمدير الفني: مدرب ${i+1}\nأمين الصندوق: أمين ${i+1}`,
+                achievements: `- بطل الدوري ${Math.floor(Math.random() * 2)} مرة`,
+                stats: {
+                    position: i+1,
+                    played: 26,
+                    won: 10 + Math.floor(Math.random() * 5),
+                    drawn: 7 + Math.floor(Math.random() * 3),
+                    lost: 9 - Math.floor(Math.random() * 3),
+                    goalsFor: 20 + Math.floor(Math.random() * 15),
+                    goalsAgainst: 25 + Math.floor(Math.random() * 15),
+                    points: 37 + Math.floor(Math.random() * 15)
+                }
+            })),
+            "بلاير ليغ": Array.from({length: 14}, (_, i) => ({
+                name: `نادي ${i+1}`,
+                founded: 1980 + Math.floor(Math.random() * 20),
+                info: `معلومات عامة عن نادي ${i+1} في دوري بلاير ليغ.\n\nسنة التأسيس: ${1980 + Math.floor(Math.random() * 20)}\n\nهنا يمكن كتابة تفاصيل إضافية عن النادي وتاريخه وإنجازاته.`,
+                officials: `الرئيس: رئيس ${i+1}\nنائب الرئيس: نائب ${i+1}\nالمدير الفني: مدرب ${i+1}\nأمين الصندوق: أمين ${i+1}`,
+                achievements: `- بطل الدوري ${Math.floor(Math.random() * 1)} مرة`,
+                stats: {
+                    position: i+1,
+                    played: 26,
+                    won: 8 + Math.floor(Math.random() * 5),
+                    drawn: 8 + Math.floor(Math.random() * 3),
+                    lost: 10 - Math.floor(Math.random() * 3),
+                    goalsFor: 15 + Math.floor(Math.random() * 15),
+                    goalsAgainst: 30 + Math.floor(Math.random() * 15),
+                    points: 32 + Math.floor(Math.random() * 15)
+                }
+            }))
+        };
+
+        // حالة التطبيق
+        let currentState = {
+            view: 'home',
+            league: '',
+            club: '',
+            search: ''
+        };
+
+        // تهيئة التطبيق
+        function initApp() {
+            renderView();
+            setupEventListeners();
+        }
+
+        // إعداد مستمعي الأحداث
+        function setupEventListeners() {
+            // البحث عند الكتابة
+            document.addEventListener('input', function(e) {
+                if (e.target.id === 'clubSearch') {
+                    currentState.search = e.target.value.trim().toLowerCase();
+                    renderView();
+                }
+            });
+
+            // إغلاق القائمة عند النقر خارجها
+            document.addEventListener('click', function(e) {
+                const menu = document.getElementById('mainMenu');
+                const toggle = document.querySelector('.menu-toggle');
+                
+                if (!menu.contains(e.target) && !toggle.contains(e.target)) {
+                    closeMenu();
+                }
+            });
+        }
+
+        // التنقل بين الصفحات
+        function navigateTo(destination) {
+            closeMenu();
+            
+            // إخفاء المحتوى الحالي بسلاسة
+            const contentArea = document.getElementById('contentArea');
+            contentArea.classList.add('hidden');
+            
+            setTimeout(() => {
+                if (destination === 'home') {
+                    currentState = {
+                        view: 'home',
+                        league: '',
+                        club: '',
+                        search: ''
+                    };
+                } else if (leaguesData[destination]) {
+                    currentState = {
+                        view: 'league',
+                        league: destination,
+                        club: '',
+                        search: ''
+                    };
+                }
+                
+                renderView();
+                contentArea.classList.remove('hidden');
+            }, 150);
+        }
+
+        // عرض المحتوى حسب الحالة
+        function renderView() {
+            const contentArea = document.getElementById('contentArea');
+            
+            switch(currentState.view) {
+                case 'home':
+                    renderHomeView(contentArea);
+                    break;
+                    
+                case 'league':
+                    renderLeagueView(contentArea);
+                    break;
+                    
+                case 'club':
+                    renderClubView(contentArea);
+                    break;
+            }
+        }
+
+        // عرض الصفحة الرئيسية
+        function renderHomeView(container) {
+            container.innerHTML = `
+                <h1 class="page-title">مرحباً بكم في منصة الأندية</h1>
+                <p>اختر دوريًا من القائمة لعرض أنديته.</p>
+            `;
+        }
+
+        // عرض صفحة الدوري
+        function renderLeagueView(container) {
+            showLoading();
+            
+            setTimeout(() => {
+                const leagueClubs = filterClubs(leaguesData[currentState.league]);
+                
+                container.innerHTML = `
+                    <button class="back-btn" onclick="navigateTo('home')">
+                        <i class="fas fa-arrow-right"></i>
+                        العودة
+                    </button>
+                    
+                    <div class="league-badge">
+                        <i class="fas fa-trophy"></i>
+                        ${currentState.league}
+                    </div>
+                    
+                    <div class="search-container">
+                        <input type="text" id="clubSearch" class="search-input" 
+                               placeholder="ابحث عن نادي..." value="${currentState.search}">
+                    </div>
+                    
+                    <div class="tab-container">
+                        <div class="tab active" data-tab="clubs">
+                            <i class="fas fa-club"></i>
+                            الأندية
+                        </div>
+                        <div class="tab" data-tab="table">
+                            <i class="fas fa-table"></i>
+                            جدول الترتيب
+                        </div>
+                    </div>
+                    
+                    <div class="tab-content active" data-content="clubs">
+                        <div class="clubs-grid">
+                            ${leagueClubs.map(club => `
+                                <div class="club-card" onclick="showClub('${currentState.league}', '${club.name}')">
+                                    <div class="club-logo">${club.name.charAt(0)}</div>
+                                    <h3>${club.name}</h3>
+                                    <p><i class="fas fa-calendar-alt"></i> ${club.founded}</p>
+                                </div>
+                            `).join('')}
+                        </div>
+                        
+                        ${leagueClubs.length === 0 ? `
+                            <p style="text-align: center; margin-top: 20px; color: rgba(254, 250, 224, 0.6);">
+                                لا توجد أندية تطابق معايير البحث
+                            </p>
+                        ` : ''}
+                    </div>
+                    
+                    <div class="tab-content" data-content="table">
+                        <div class="league-table-container">
+                            ${renderLeagueTable(leagueClubs)}
+                        </div>
+                    </div>
+                `;
+                
+                // إعداد أحداث التبويبات
+                setupTabs();
+                hideLoading();
+            }, 300);
+        }
+
+        // عرض جدول الترتيب
+        function renderLeagueTable(clubs) {
+            // ترتيب الأندية حسب النقاط
+            const sortedClubs = [...clubs].sort((a, b) => b.stats.points - a.stats.points);
+            
+            return `
+                <table class="league-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th class="team-name">الفريق</th>
+                            <th class="stats">ل</th>
+                            <th class="stats">ف</th>
+                            <th class="stats">ت</th>
+                            <th class="stats">خ</th>
+                            <th class="stats">له</th>
+                            <th class="stats">عليه</th>
+                            <th class="stats">+/-</th>
+                            <th class="stats">ن</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${sortedClubs.map((club, index) => `
+                            <tr ${index < 3 ? 'class="highlight"' : ''}>
+                                <td class="position">${index + 1}</td>
+                                <td class="team-name">${club.name}</td>
+                                <td class="stats">${club.stats.played}</td>
+                                <td class="stats">${club.stats.won}</td>
+                                <td class="stats">${club.stats.drawn}</td>
+                                <td class="stats">${club.stats.lost}</td>
+                                <td class="stats">${club.stats.goalsFor}</td>
+                                <td class="stats">${club.stats.goalsAgainst}</td>
+                                <td class="stats">${club.stats.goalsFor - club.stats.goalsAgainst}</td>
+                                <td class="stats"><strong>${club.stats.points}</strong></td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        // عرض صفحة النادي
+        function renderClubView(container) {
+            showLoading();
+            
+            setTimeout(() => {
+                const club = leaguesData[currentState.league].find(c => c.name === currentState.club);
+                
+                container.innerHTML = `
+                    <button class="back-btn" onclick="showLeagueView('${currentState.league}')">
+                        <i class="fas fa-arrow-right"></i>
+                        العودة
+                    </button>
+                    
+                    <h1 class="page-title">${currentState.club}</h1>
+                    
+                    <div class="league-badge">
+                        <i class="fas fa-trophy"></i>
+                        ${currentState.league}
+                    </div>
+                    
+                    <div class="tab-container">
+                        <div class="tab active" data-tab="info">
+                            <i class="fas fa-info-circle"></i>
+                            معلومات
+                        </div>
+                        <div class="tab" data-tab="officials">
+                            <i class="fas fa-users"></i>
+                            المسؤولون
+                        </div>
+                        <div class="tab" data-tab="achievements">
+                            <i class="fas fa-trophy"></i>
+                            الإنجازات
+                        </div>
+                        <div class="tab" data-tab="stats">
+                            <i class="fas fa-chart-bar"></i>
+                            الإحصائيات
+                        </div>
+                    </div>
+                    
+                    <div class="tab-content active" data-content="info">
+                        <div class="club-details">
+                            <h2><i class="fas fa-info-circle"></i> معلومات النادي</h2>
+                            <p style="white-space: pre-wrap;">${club.info}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="tab-content" data-content="officials">
+                        <div class="club-details">
+                            <h2><i class="fas fa-users"></i> المسؤولون</h2>
+                            <div class="officials-list">${club.officials}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="tab-content" data-content="achievements">
+                        <div class="club-details">
+                            <h2><i class="fas fa-trophy"></i> الإنجازات</h2>
+                            <div class="officials-list">${club.achievements}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="tab-content" data-content="stats">
+                        <div class="club-details">
+                            <h2><i class="fas fa-chart-bar"></i> إحصائيات الموسم</h2>
+                            <div class="league-table-container">
+                                <table class="league-table">
+                                    <tbody>
+                                        <tr>
+                                            <td><strong>المركز الحالي</strong></td>
+                                            <td>${club.stats.position}</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>عدد المباريات</strong></td>
+                                            <td>${club.stats.played}</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>الفوز</strong></td>
+                                            <td>${club.stats.won}</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>التعادل</strong></td>
+                                            <td>${club.stats.drawn}</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>الخسارة</strong></td>
+                                            <td>${club.stats.lost}</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>الأهداف المسجلة</strong></td>
+                                            <td>${club.stats.goalsFor}</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>الأهداف المستلمة</strong></td>
+                                            <td>${club.stats.goalsAgainst}</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>فرق الأهداف</strong></td>
+                                            <td>${club.stats.goalsFor - club.stats.goalsAgainst}</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>النقاط</strong></td>
+                                            <td><strong>${club.stats.points}</strong></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                // إعداد أحداث التبويبات
+                setupTabs();
+                hideLoading();
+            }, 300);
+        }
+
+        // تصفية الأندية حسب البحث
+        function filterClubs(clubs) {
+            if (!currentState.search) return clubs;
+            
+            return clubs.filter(club => 
+                club.name.toLowerCase().includes(currentState.search)
+            );
+        }
+
+        // عرض صفحة الدوري
+        function showLeagueView(leagueName) {
+            // إخفاء المحتوى الحالي بسلاسة
+            const contentArea = document.getElementById('contentArea');
+            contentArea.classList.add('hidden');
+            
+            setTimeout(() => {
+                currentState = {
+                    view: 'league',
+                    league: leagueName,
+                    club: '',
+                    search: ''
+                };
+                renderView();
+                contentArea.classList.remove('hidden');
+            }, 150);
+        }
+
+        // عرض صفحة النادي
+        function showClub(leagueName, clubName) {
+            // إخفاء المحتوى الحالي بسلاسة
+            const contentArea = document.getElementById('contentArea');
+            contentArea.classList.add('hidden');
+            
+            setTimeout(() => {
+                currentState = {
+                    view: 'club',
+                    league: leagueName,
+                    club: clubName,
+                    search: ''
+                };
+                renderView();
+                contentArea.classList.remove('hidden');
+            }, 150);
+        }
+
+        // إعداد أحداث التبويبات
+        function setupTabs() {
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const tabId = this.getAttribute('data-tab');
+                    switchTab(tabId);
+                });
+            });
+        }
+
+        // تبديل التبويبات
+        function switchTab(tabId) {
+            // إخفاء جميع المحتويات
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // إزالة التنشيط من جميع الألسنة
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // عرض المحتوى المحدد
+            document.querySelector(`.tab-content[data-content="${tabId}"]`).classList.add('active');
+            
+            // تنشيط اللسان المحدد
+            document.querySelector(`.tab[data-tab="${tabId}"]`).classList.add('active');
+        }
+
+        // عرض مؤشر التحميل
+        function showLoading() {
+            document.getElementById('loadingOverlay').classList.add('show');
+        }
+
+        // إخفاء مؤشر التحميل
+        function hideLoading() {
+            document.getElementById('loadingOverlay').classList.remove('show');
+        }
+
+        // فتح/إغلاق القائمة
+        function toggleMenu() {
+            document.getElementById('mainMenu').classList.toggle('active');
+            document.getElementById('overlay').classList.toggle('active');
+        }
+
+        // إغلاق القائمة
+        function closeMenu() {
+            document.getElementById('mainMenu').classList.remove('active');
+            document.getElementById('overlay').classList.remove('active');
+        }
+
+        // بدء التطبيق عند تحميل الصفحة
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>
